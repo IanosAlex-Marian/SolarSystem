@@ -1,0 +1,22 @@
+# Build folders
+build/
+
+# Compiled files
+*.o
+*.exe
+*.dll
+*.so
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Visual Studio
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.user
