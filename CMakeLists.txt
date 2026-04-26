@@ -21,11 +21,28 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glm)
 
-# GLAD (manual source)
+# GLAD
 add_library(glad src/glad.c)
 target_include_directories(glad PUBLIC include)
 
-# Your executable
-add_executable(SolarSystem src/main.cpp)
+# Executable
+add_executable(SolarSystem
+    src/main.cpp
+    src/shaderClass.cpp
+    src/VBO.cpp
+    src/VAO.cpp
+    src/EBO.cpp
+)
+
+target_include_directories(SolarSystem PUBLIC include)
 
 target_link_libraries(SolarSystem glfw glad glm)
+
+set_target_properties(SolarSystem PROPERTIES
+    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    VS_DEBUGGER_COMMAND_ARGUMENTS ""
+)
+
+target_compile_definitions(SolarSystem PRIVATE
+    SHADER_DIR="${CMAKE_SOURCE_DIR}/shaders/"
+)

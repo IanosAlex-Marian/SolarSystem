@@ -1,26 +1,11 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-
-const char* vertexShaderSource = R"(
-#version 330 core
-layout (location = 0) in vec3 aPos;
-
-void main()
-{
-    gl_Position = vec4(aPos, 1.0);
-}
-)";
-
-const char* fragmentShaderSource = R"(
-#version 330 core
-out vec4 FragColor;
-
-void main()
-{
-    FragColor = vec4(1.0, 0.5, 0.2, 1.0);
-}
-)";
+#include <direct.h>
+#include "shaderClass.h"
+#include "VAO.h"
+#include "VBO.h"
+#include "EBO.h"
 
 /* Viewport changer */
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -29,6 +14,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
 int main() {
+
     if (!glfwInit()) {
         std::cout << "Failed to init GLFW\n";
         return -1;
@@ -73,58 +59,32 @@ int main() {
         return -1;
     }
 
-    /* Define shaders */
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-
-    /* Define program and add shaders to it*/
-
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    /* Delete shaders */
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
     /* Initialize viewport changer to framebuffer*/
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    /* Define VAO */
+    /* Define Shader Program */
+    Shader shaderProgram(
+        std::string(SHADER_DIR) + "default.vert",
+        std::string(SHADER_DIR) + "default.frag"
+    );
 
-    GLuint VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    /* Define VAO */
+    VAO VAO1;
+    VAO1.Bind();
 
     /* Define VBO */
-    GLuint VBO;
-    glGenBuffers(1, &VBO);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    VBO VBO1(vertices, sizeof(vertices));
 
     /* Define EBO */
-    GLuint EBO;
-    glGenBuffers(1, &EBO);
+    EBO EBO1(indices, sizeof(indices));
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-   
+    /* Link */
+    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
 
     /* Unbind our buffers */
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    VAO1.Unbind();
+    VBO1.Unbind();
 
     /* Render loop */
     while (!glfwWindowShouldClose(window)) {
@@ -135,10 +95,10 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
 
         /* Use shader program */
-        glUseProgram(shaderProgram);
+        shaderProgram.Activate();
 
         /* Bind VAO */
-        glBindVertexArray(VAO);
+        VAO1.Bind();
         
         /* Draw */
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -149,10 +109,10 @@ int main() {
     }
 
     /* Delete all */
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
-    glDeleteProgram(shaderProgram);
+    VAO1.Delete();
+    VBO1.Delete();
+    EBO1.Delete();
+    shaderProgram.Delete();
     glfwTerminate();
     return 0;
 }
