@@ -1,7 +1,10 @@
 #version 330 core
 out vec4 FragColor;
 
+uniform float time;
+in vec3 color;
+
 void main()
-{
-	FragColor = vec4(0.815f, 0.105f, 0.105f, 1.0f);
+{	
+	FragColor = vec4(color, 1.0f);
 }

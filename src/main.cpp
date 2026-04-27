@@ -1,5 +1,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <direct.h>
 #include "shaderClass.h"
@@ -22,16 +25,30 @@ int main() {
 
     /* Define vertices */
     GLfloat vertices[] = {
-        -0.5f, -0.5f, 0.0f, // Bottom left
-        0.5f, -0.5f, 0.0f, // Bottom right
-        0.5f, 0.5f, 0.0f, // Top Right
-        -0.5f, 0.5f, 0.0f // Top Left
+        -0.5f, -0.5f, 0.5f, // 0
+        0.5f, -0.5f, 0.5f, // 1
+        0.5f, 0.5f, 0.5f, // 2
+        -0.5f, 0.5f, 0.5f, // 3
+        -0.5f, -0.5f, -0.5f, // 4
+        0.5f, -0.5f, -0.5f, // 5
+        0.5f, 0.5f, -0.5f, // 6
+        -0.5f, 0.5f, -0.5f // 7
     };
 
     /* Define indices */
     GLuint indices[] = {
-        0,1,2, // Bottom Right
-        0,2,3 // Top Left
+    0, 1, 2,
+    0, 2, 3,
+    1, 2, 5, 
+    2, 5, 6,
+    4, 5, 6,
+    4, 6, 7,
+    3, 4, 7,
+    0, 3, 4,
+    0, 1, 5,
+    0, 4, 5,
+    2, 3, 6,
+    3, 6, 7
     };
 
     /* Specify glfw and OpenGL versions */
@@ -58,6 +75,9 @@ int main() {
         std::cout << "Failed to init GLAD\n";
         return -1;
     }
+
+    /* Enable depth */
+    glEnable(GL_DEPTH_TEST);
 
     /* Initialize viewport changer to framebuffer*/
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -90,18 +110,45 @@ int main() {
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
 
-        /* Set Background */
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
         /* Use shader program */
         shaderProgram.Activate();
+
+        /* Set time unfirom */
+        float time = glfwGetTime();
+        shaderProgram.setFloat("time", time);
+
+        /* Create model matrix */
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::rotate(model, glm::radians(25.0f),
+            glm::vec3(1.0f, -1.0f, 0.0f));
+
+        /* Set model uniform */
+        shaderProgram.setMat4("model", model);
+
+        /* Create view matrix */
+        glm::mat4 view = glm::mat4(1.0f);
+        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+        /* Set view uniform */
+        shaderProgram.setMat4("view", view);
+
+        /* Create projection matrix */
+        glm::mat4 projection;
+        projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f,
+            100.0f);
+
+        /* Set projection uniform */
+        shaderProgram.setMat4("projection", projection);
+
+        /* Set Background */
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         /* Bind VAO */
         VAO1.Bind();
         
         /* Draw */
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
         /* Swap Front & Back */
         glfwSwapBuffers(window);
