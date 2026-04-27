@@ -51,13 +51,27 @@ int main() {
     3, 6, 7
     };
 
+    /* Define cube positions */
+    glm::vec3 cubePositions[] = {
+    glm::vec3(0.0f, 0.0f, 0.0f), // 0
+    glm::vec3(2.0f, 5.0f, -15.0f), // 1
+    glm::vec3(-1.5f, -2.2f, -2.5f), // 2
+    glm::vec3(-3.8f, -2.0f, -12.3f), // 3
+    glm::vec3(2.4f, -0.4f, -3.5f), // 4
+    glm::vec3(-1.7f, 3.0f, -7.5f), // 5
+    glm::vec3(1.3f, -2.0f, -2.5f), // 6
+    glm::vec3(1.5f, 2.0f, -2.5f), // 7
+    glm::vec3(1.5f, 0.2f, -1.5f), // 8
+    glm::vec3(-1.3f, 1.0f, -1.5f) // 9
+    };
+
     /* Specify glfw and OpenGL versions */
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Initialize window width and height */
-    const unsigned int WIDTH = 800, HEIGHT = 800;
+    const unsigned int WIDTH = 800, HEIGHT = 600;
 
     /* Initialize window */
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Solar System", NULL, NULL);
@@ -117,14 +131,27 @@ int main() {
         float time = glfwGetTime();
         shaderProgram.setFloat("time", time);
 
-        /* Create model matrix */
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, time,
-            glm::vec3(1.0f, -1.0f, 0.0f));
+        /* Set Background */
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        /* Set model uniform */
-        shaderProgram.setMat4("model", model);
+        /* Bind VAO */
+        VAO1.Bind();
 
+        for (unsigned int i = 0; i < sizeof(cubePositions) / sizeof(glm::vec3); i++){
+            /* Create model matrix */
+            glm::mat4 model = glm::mat4(1.0f);
+            model= glm::translate(model, cubePositions[i]);
+
+            model = glm::rotate(model, time * (i + 1.0f)* 0.5f,
+                glm::vec3(1.0f, -1.0f, 0.0f));
+
+            /* Set model uniform */
+            shaderProgram.setMat4("model", model);
+
+            /* Draw */
+            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        }
         /* Create view matrix */
         glm::mat4 view = glm::mat4(1.0f);
         view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
@@ -139,16 +166,6 @@ int main() {
 
         /* Set projection uniform */
         shaderProgram.setMat4("projection", projection);
-
-        /* Set Background */
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        /* Bind VAO */
-        VAO1.Bind();
-        
-        /* Draw */
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
         /* Swap Front & Back */
         glfwSwapBuffers(window);
