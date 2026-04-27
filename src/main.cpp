@@ -39,6 +39,11 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     camera.ProcessMouse(xoffset, yoffset);
 }
 
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    camera.ProcessScroll((float)yoffset);
+}
+
 /* Viewport changer */
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -116,6 +121,8 @@ int main() {
 
     /* Initialize mouse callback */
     glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     /* Initialize glad */
@@ -225,7 +232,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-/* Closing function */
+/* Keyboard function */
 void processKeyboard(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -242,4 +249,10 @@ void processKeyboard(GLFWwindow* window)
 
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
+
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        camera.ProcessKeyboard(UP, deltaTime);
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        camera.ProcessKeyboard(DOWN, deltaTime);
 }

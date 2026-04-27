@@ -7,7 +7,9 @@ enum Camera_Movement {
     FORWARD,
     BACKWARD,
     LEFT,
-    RIGHT
+    RIGHT,
+    UP,
+    DOWN
 };
 
 class Camera {
@@ -30,6 +32,7 @@ public:
 
     void ProcessKeyboard(Camera_Movement direction, float deltaTime);
     void ProcessMouse(float xoffset, float yoffset);
+    void ProcessScroll(float yoffset);
 
 private:
     void updateVectors();

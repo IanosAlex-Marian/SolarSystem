@@ -11,8 +11,8 @@ Camera::Camera(glm::vec3 position)
     Yaw = -90.0f;
     Pitch = 0.0f;
 
-    Speed = 2.5f;
-    Sensitivity = 0.1f;
+    Speed = 5.0f;
+    Sensitivity = 0.2f;
 
     updateVectors();
 }
@@ -63,4 +63,15 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 
     if (direction == RIGHT)
         Position += Right * velocity;
+
+    if (direction == UP)
+        Position += WorldUp * velocity;
+
+    if (direction == DOWN)
+        Position -= WorldUp * velocity;
+}
+
+void Camera::ProcessScroll(float yoffset)
+{
+    Position += Front * yoffset * 1.0f;
 }
