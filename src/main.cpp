@@ -119,7 +119,7 @@ int main() {
 
         /* Create model matrix */
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, glm::radians(25.0f),
+        model = glm::rotate(model, time,
             glm::vec3(1.0f, -1.0f, 0.0f));
 
         /* Set model uniform */
