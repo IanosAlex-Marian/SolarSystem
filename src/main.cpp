@@ -134,7 +134,7 @@ int main() {
 
         /* Create projection matrix */
         glm::mat4 projection;
-        projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f,
+        projection = glm::perspective(glm::radians(45.0f), (float)WIDTH / HEIGHT, 0.1f,
             100.0f);
 
         /* Set projection uniform */
