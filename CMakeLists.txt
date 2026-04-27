@@ -32,6 +32,7 @@ add_executable(SolarSystem
     src/VBO.cpp
     src/VAO.cpp
     src/EBO.cpp
+    src/camera.cpp
 )
 
 target_include_directories(SolarSystem PUBLIC include)
