@@ -9,6 +9,7 @@
 #include "VBO.h"
 #include "EBO.h"
 #include "camera.h"
+#include "planetClass.h"
 
 /* Initialize window width and height */
 const unsigned int WIDTH = 800, HEIGHT = 600;
@@ -61,48 +62,6 @@ int main() {
         return -1;
     }
 
-    /* Define vertices */
-    GLfloat vertices[] = {
-        -0.5f, -0.5f, 0.5f, // 0
-        0.5f, -0.5f, 0.5f, // 1
-        0.5f, 0.5f, 0.5f, // 2
-        -0.5f, 0.5f, 0.5f, // 3
-        -0.5f, -0.5f, -0.5f, // 4
-        0.5f, -0.5f, -0.5f, // 5
-        0.5f, 0.5f, -0.5f, // 6
-        -0.5f, 0.5f, -0.5f // 7
-    };
-
-    /* Define indices */
-    GLuint indices[] = {
-    0, 1, 2,
-    0, 2, 3,
-    1, 2, 5, 
-    2, 5, 6,
-    4, 5, 6,
-    4, 6, 7,
-    3, 4, 7,
-    0, 3, 4,
-    0, 1, 5,
-    0, 4, 5,
-    2, 3, 6,
-    3, 6, 7
-    };
-
-    /* Define cube positions */
-    glm::vec3 cubePositions[] = {
-    glm::vec3(0.0f, 0.0f, 0.0f), // 0
-    glm::vec3(2.0f, 5.0f, -15.0f), // 1
-    glm::vec3(-1.5f, -2.2f, -2.5f), // 2
-    glm::vec3(-3.8f, -2.0f, -12.3f), // 3
-    glm::vec3(2.4f, -0.4f, -3.5f), // 4
-    glm::vec3(-1.7f, 3.0f, -7.5f), // 5
-    glm::vec3(1.3f, -2.0f, -2.5f), // 6
-    glm::vec3(1.5f, 2.0f, -2.5f), // 7
-    glm::vec3(1.5f, 0.2f, -1.5f), // 8
-    glm::vec3(-1.3f, 1.0f, -1.5f) // 9
-    };
-
     /* Specify glfw and OpenGL versions */
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -143,23 +102,8 @@ int main() {
         std::string(SHADER_DIR) + "default.frag"
     );
 
-    /* Define VAO */
-    VAO VAO1;
-    VAO1.Bind();
-
-    /* Define VBO */
-
-    VBO VBO1(vertices, sizeof(vertices));
-
-    /* Define EBO */
-    EBO EBO1(indices, sizeof(indices));
-
-    /* Link */
-    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
-
-    /* Unbind our buffers */
-    VAO1.Unbind();
-    VBO1.Unbind();
+    /* Create planets */
+    Planet earth(1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
 
     /* Render loop */
     while (!glfwWindowShouldClose(window)) {
@@ -180,9 +124,6 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        /* Bind VAO */
-        VAO1.Bind();
-
         /* Create view matrix */
         glm::mat4 view = camera.GetViewMatrix();
 
@@ -197,20 +138,8 @@ int main() {
         /* Set projection uniform */
         shaderProgram.setMat4("projection", projection);
 
-        for (unsigned int i = 0; i < sizeof(cubePositions) / sizeof(glm::vec3); i++){
-            /* Create model matrix */
-            glm::mat4 model = glm::mat4(1.0f);
-            model= glm::translate(model, cubePositions[i]);
-
-            model = glm::rotate(model, currentFrame * (i + 1.0f)* 0.5f,
-                glm::vec3(1.0f, -1.0f, 0.0f));
-
-            /* Set model uniform */
-            shaderProgram.setMat4("model", model);
-
-            /* Draw */
-            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-        }
+        /* Draw earth */
+        earth.Draw(shaderProgram);
 
         /* Swap Front & Back */
         glfwSwapBuffers(window);
@@ -218,9 +147,6 @@ int main() {
     }
 
     /* Delete all */
-    VAO1.Delete();
-    VBO1.Delete();
-    EBO1.Delete();
     shaderProgram.Delete();
     glfwTerminate();
     return 0;
