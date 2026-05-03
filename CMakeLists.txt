@@ -34,6 +34,8 @@ add_executable(SolarSystem
     src/EBO.cpp
     src/camera.cpp
     src/planetClass.cpp
+    src/starClass.cpp
+    src/gravitySystem.cpp
 )
 
 target_include_directories(SolarSystem PUBLIC include)
