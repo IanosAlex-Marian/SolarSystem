@@ -83,14 +83,11 @@ void Planet::generateSphere(int sectors, int stacks) {
 glm::vec3 CalculateGravitationalForce(const Planet& a, const Planet& b) {
     const float G = 3.0f;
 
-    // Direction from b to a → attractive force on b
     glm::vec3 direction = a.GetPosition() - b.GetPosition();
     float distance = glm::length(direction);
     if (distance < 0.001f) distance = 0.001f;
 
     float forceMagnitude = G * a.GetMass() * b.GetMass() / (distance * distance);
-
-    // Optional: Soft repulsion to prevent planets merging
     float minDist = (a.GetRadius() + b.GetRadius()) * 1.2f;
     return glm::normalize(direction) * forceMagnitude;
 }

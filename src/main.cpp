@@ -15,6 +15,13 @@
 #include "gravitySystem.h"
 
 const unsigned int WIDTH = 800, HEIGHT = 600;
+bool isFullscreen = false;
+glm::mat4 projection;
+
+int windowedX, windowedY;
+int windowedW = WIDTH;
+int windowedH = HEIGHT;
+
 
 Camera camera(glm::vec3(0.0f, 30.0f, 80.0f));
 
@@ -34,6 +41,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processKeyboard(GLFWwindow* window);
+void toggleBorderlessFullscreen(GLFWwindow* window);
+void updateProjection(int width, int height);
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
@@ -59,19 +68,18 @@ int main() {
     }
 
     glEnable(GL_DEPTH_TEST);
+    updateProjection(WIDTH, HEIGHT);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     Shader shaderProgram(
-        std::string(SHADER_DIR) + "default.vert",
-        std::string(SHADER_DIR) + "default.frag"
+        "shaders/default.vert",
+        "shaders/default.frag"
     );
 
     GravitySystem gravitySystem;
 
-    // Sun: fixed in place via Star::ApplyForce no-op
     Star* sun = new Star(3.0f, 5000.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.9f, 0.7f));
 
-    // Circular orbit velocity: v = sqrt(G * M_sun / r), G=3, M_sun=5000
     /* All planet masses set to 1.0 so planet - planet forces are negligible */
     const float G = 3.0f;
     const float M = 5000.0f;
@@ -106,7 +114,7 @@ int main() {
 
     std::vector<Planet*> planets = { sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune };
 
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)WIDTH / HEIGHT, 0.1f, 1000.0f);
+    
 
     while (!glfwWindowShouldClose(window)) {
         processKeyboard(window);
@@ -150,11 +158,74 @@ int main() {
     return 0;
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+void updateProjection(int width, int height)
+{
+    projection = glm::perspective(
+        glm::radians(45.0f),
+        (float)width / (float)height,
+        0.1f,
+        1000.0f
+    );
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
     glViewport(0, 0, width, height);
+    updateProjection(width, height);
+}
+
+void toggleBorderlessFullscreen(GLFWwindow* window)
+{
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+    if (!isFullscreen)
+    {
+        glfwGetWindowPos(window, &windowedX, &windowedY);
+        glfwGetWindowSize(window, &windowedW, &windowedH);
+
+        glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
+
+        glfwSetWindowPos(window, 0, 0);
+        glfwSetWindowSize(window, mode->width, mode->height);
+
+        updateProjection(mode->width, mode->height);
+
+        isFullscreen = true;
+    }
+    else
+    {
+        glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_TRUE);
+
+        glfwSetWindowSize(window, windowedW, windowedH);
+        glfwSetWindowPos(window, windowedX, windowedY);
+
+        glfwPollEvents();
+
+        int width, height;
+        glfwGetFramebufferSize(window, &width, &height);
+        updateProjection(width, height);
+
+        isFullscreen = false;
+    }
 }
 
 void processKeyboard(GLFWwindow* window) {
+    static bool f11Pressed = false;
+
+    if (glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS)
+    {
+        if (!f11Pressed)
+        {
+            toggleBorderlessFullscreen(window);
+            f11Pressed = true;
+        }
+    }
+    else
+    {
+        f11Pressed = false;
+    }
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
