@@ -72,8 +72,8 @@ int main() {
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     Shader shaderProgram(
-        "shaders/default.vert",
-        "shaders/default.frag"
+        std::string(SHADER_DIR) + "default.vert",
+        std::string(SHADER_DIR) + "default.frag"
     );
 
     GravitySystem gravitySystem;
