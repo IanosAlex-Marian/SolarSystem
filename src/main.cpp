@@ -14,42 +14,31 @@
 #include "starClass.h"
 #include "gravitySystem.h"
 
-const unsigned int WIDTH = 800, HEIGHT = 600;
-bool isFullscreen = false;
-glm::mat4 projection;
-
-int windowedX, windowedY;
-int windowedW = WIDTH;
-int windowedH = HEIGHT;
-
-
-Camera camera(glm::vec3(0.0f, 30.0f, 80.0f));
-
-void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-    static float lastX = WIDTH / 2.0f, lastY = HEIGHT / 2.0f;
-    static bool firstMouse = true;
-    if (firstMouse) { lastX = xpos; lastY = ypos; firstMouse = false; }
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos;
-    lastX = xpos; lastY = ypos;
-    camera.ProcessMouse(xoffset, yoffset);
-}
-
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    camera.ProcessScroll((float)yoffset);
-}
-
+/* Function definitions */
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processKeyboard(GLFWwindow* window);
 void toggleBorderlessFullscreen(GLFWwindow* window);
 void updateProjection(int width, int height);
 
+/* Global variables */
+const unsigned int WIDTH = 800, HEIGHT = 600;
+bool isFullscreen = false;
+bool gravityEnabled = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 float timeScale = 0.5f;
-bool gravityEnabled = true;
+
+int windowedX, windowedY;
+int windowedW = WIDTH;
+int windowedH = HEIGHT;
+
+glm::mat4 projection;
+Camera camera(glm::vec3(0.0f, 30.0f, 80.0f));
 
 int main() {
+    /* Initialize GLfw */
     if (!glfwInit()) { std::cout << "Failed to init GLFW\n"; return -1; }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -64,14 +53,17 @@ int main() {
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    /* Initialize GLAD*/
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to init GLAD\n"; return -1;
     }
 
+    /* Depth projection */
     glEnable(GL_DEPTH_TEST);
     updateProjection(WIDTH, HEIGHT);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+    /* Shader initializer */
     Shader shaderProgram(
         std::string(SHADER_DIR) + "default.vert",
         std::string(SHADER_DIR) + "default.frag"
@@ -115,7 +107,7 @@ int main() {
 
     std::vector<Planet*> planets = { sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune };
 
-    
+    /* Main while loop */
 
     while (!glfwWindowShouldClose(window)) {
         processKeyboard(window);
@@ -159,8 +151,8 @@ int main() {
     return 0;
 }
 
-void updateProjection(int width, int height)
-{
+/* Projection updater (For callbacks)*/
+void updateProjection(int width, int height) {
     projection = glm::perspective(
         glm::radians(45.0f),
         (float)width / (float)height,
@@ -169,21 +161,35 @@ void updateProjection(int width, int height)
     );
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
+/* Mouse callbacks */
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    static float lastX = WIDTH / 2.0f, lastY = HEIGHT / 2.0f;
+    static bool firstMouse = true;
+    if (firstMouse) { lastX = xpos; lastY = ypos; firstMouse = false; }
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
+    lastX = xpos; lastY = ypos;
+    camera.ProcessMouse(xoffset, yoffset);
+}
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    camera.ProcessScroll((float)yoffset);
+}
+
+/* Framebuffer callback */
+void framebuffer_size_callback(GLFWwindow* window, int width, int height){
     glViewport(0, 0, width, height);
     updateProjection(width, height);
 }
 
-void toggleBorderlessFullscreen(GLFWwindow* window)
-{
+
+/* Fullscreen toggle */
+void toggleBorderlessFullscreen(GLFWwindow* window){
     static int windowedX, windowedY, windowedW, windowedH;
 
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-    if (!isFullscreen)
-    {
+    if (!isFullscreen){
         glfwGetWindowPos(window, &windowedX, &windowedY);
         glfwGetWindowSize(window, &windowedW, &windowedH);
 
@@ -194,8 +200,7 @@ void toggleBorderlessFullscreen(GLFWwindow* window)
 
         isFullscreen = true;
     }
-    else
-    {
+    else{
         glfwSetWindowMonitor(window, nullptr,
             windowedX, windowedY,
             windowedW, windowedH,
@@ -211,50 +216,48 @@ void processKeyboard(GLFWwindow* window) {
     static bool f11Pressed = false;
     static bool pPressed = false;
 
-    // F11 toggle
-    if (glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS)
-    {
-        if (!f11Pressed)
-        {
+    /* Fullscreen */ 
+    if (glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS){
+        if (!f11Pressed){
             toggleBorderlessFullscreen(window);
             f11Pressed = true;
         }
     }
-    else
-    {
+    else{
         f11Pressed = false;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
-    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
-    {
-        if (!pPressed)
-        {
+    /* Pause button */
+    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS){
+        if (!pPressed){
             gravityEnabled = !gravityEnabled;
             pPressed = true;
         }
     }
-    else
-    {
+    else{
         pPressed = false;
     }
 
+    /* Timescale */
     if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS )
         timeScale += 0.01f;
-
     if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS)
         timeScale -= 0.01f;
-
     timeScale = glm::clamp(timeScale, 0.1f, 5.0f);
 
+    /* Recenter */
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-        camera = Camera(glm::vec3(0.0f, 10.0f, 15.0f));
+        camera = Camera(glm::vec3(0.0f, 5.0f, 25.0f));
+
+    /* Basic movement */
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) camera.ProcessKeyboard(BACKWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) camera.ProcessKeyboard(RIGHT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) camera.ProcessKeyboard(UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) camera.ProcessKeyboard(DOWN, deltaTime);
+
+    /* Closing */
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
 }
