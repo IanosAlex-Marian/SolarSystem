@@ -177,6 +177,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void toggleBorderlessFullscreen(GLFWwindow* window)
 {
+    static int windowedX, windowedY, windowedW, windowedH;
+
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
@@ -185,30 +187,24 @@ void toggleBorderlessFullscreen(GLFWwindow* window)
         glfwGetWindowPos(window, &windowedX, &windowedY);
         glfwGetWindowSize(window, &windowedW, &windowedH);
 
-        glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
-
-        glfwSetWindowPos(window, 0, 0);
-        glfwSetWindowSize(window, mode->width, mode->height);
-
-        updateProjection(mode->width, mode->height);
+        glfwSetWindowMonitor(window, monitor,
+            0, 0,
+            mode->width, mode->height,
+            mode->refreshRate);
 
         isFullscreen = true;
     }
     else
     {
-        glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_TRUE);
-
-        glfwSetWindowSize(window, windowedW, windowedH);
-        glfwSetWindowPos(window, windowedX, windowedY);
-
-        glfwPollEvents();
-
-        int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
-        updateProjection(width, height);
+        glfwSetWindowMonitor(window, nullptr,
+            windowedX, windowedY,
+            windowedW, windowedH,
+            0);
 
         isFullscreen = false;
     }
+
+    updateProjection(mode->width, mode->height);
 }
 
 void processKeyboard(GLFWwindow* window) {
