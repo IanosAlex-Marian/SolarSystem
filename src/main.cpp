@@ -246,10 +246,10 @@ void processKeyboard(GLFWwindow* window) {
     }
 
     if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_PRESS)
-        timeScale += 0.1f;
+        timeScale += 0.01f;
 
     if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS)
-        timeScale -= 0.1f;
+        timeScale -= 0.01f;
 
     timeScale = glm::clamp(timeScale, 0.1f, 5.0f);
 
