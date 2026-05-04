@@ -126,7 +126,7 @@ int main() {
 
         if (gravityEnabled) {
             const int substeps = 10;
-            float subDt = deltaTime / substeps;
+            float subDt = deltaTime * 0.5f / substeps;
             for (int i = 0; i < substeps; ++i) {
                 gravitySystem.CalculateAndApplyForces(subDt);
                 gravitySystem.UpdatePositions(subDt);
@@ -212,7 +212,9 @@ void toggleBorderlessFullscreen(GLFWwindow* window)
 
 void processKeyboard(GLFWwindow* window) {
     static bool f11Pressed = false;
+    static bool pPressed = false;
 
+    // F11 toggle
     if (glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS)
     {
         if (!f11Pressed)
@@ -229,35 +231,25 @@ void processKeyboard(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
-        static bool gPressed = false;
-        if (!gPressed) {
+    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+    {
+        if (!pPressed)
+        {
             gravityEnabled = !gravityEnabled;
-            std::cout << "Gravity " << (gravityEnabled ? "enabled" : "disabled") << std::endl;
-            gPressed = true;
+            pPressed = true;
         }
     }
-    else {
-        static bool gPressed = false;
-        gPressed = false;
+    else
+    {
+        pPressed = false;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
-        static bool rPressed = false;
-        if (!rPressed) {
-            camera = Camera(glm::vec3(0.0f, 10.0f, 15.0f));
-            rPressed = true;
-        }
-    }
-    else {
-        static bool rPressed = false;
-        rPressed = false;
-    }
-
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+        camera = Camera(glm::vec3(0.0f, 10.0f, 15.0f));
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) camera.ProcessKeyboard(BACKWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) camera.ProcessKeyboard(RIGHT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)       camera.ProcessKeyboard(UP, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) camera.ProcessKeyboard(UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) camera.ProcessKeyboard(DOWN, deltaTime);
 }
