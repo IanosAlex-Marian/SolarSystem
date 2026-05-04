@@ -46,6 +46,7 @@ void updateProjection(int width, int height);
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+float timeScale = 0.5f;
 bool gravityEnabled = true;
 
 int main() {
@@ -126,7 +127,7 @@ int main() {
 
         if (gravityEnabled) {
             const int substeps = 10;
-            float subDt = deltaTime * 0.5f / substeps;
+            float subDt = deltaTime * timeScale / substeps;
             for (int i = 0; i < substeps; ++i) {
                 gravitySystem.CalculateAndApplyForces(subDt);
                 gravitySystem.UpdatePositions(subDt);
@@ -243,6 +244,14 @@ void processKeyboard(GLFWwindow* window) {
     {
         pPressed = false;
     }
+
+    if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_PRESS)
+        timeScale += 0.1f;
+
+    if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS)
+        timeScale -= 0.1f;
+
+    timeScale = glm::clamp(timeScale, 0.1f, 5.0f);
 
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
         camera = Camera(glm::vec3(0.0f, 10.0f, 15.0f));
