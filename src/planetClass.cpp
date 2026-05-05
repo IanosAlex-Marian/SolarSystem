@@ -117,12 +117,3 @@ void Planet::Delete() {
         ebo = nullptr;
     }
 }
-
-/* Getters */
-glm::vec3 Planet::GetPosition() const {
-    return position;
-}
-
-float Planet::GetMass() const {
-    return mass;
-}

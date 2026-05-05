@@ -21,9 +21,9 @@ public:
     void Delete();
 
     // Getters
-    glm::vec3 GetPosition() const;
+    glm::vec3 GetPosition() const { return position; }
     glm::vec3 GetVelocity() const { return velocity; }
-    float GetMass() const;
+    float GetMass() const { return mass; }
     float GetRadius() const { return radius; }
 
     // Setters
