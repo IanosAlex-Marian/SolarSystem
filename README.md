@@ -6,7 +6,7 @@
 
 A fully interactive 3D solar system simulation built with **C++** and **OpenGL 3.3**, featuring Newtonian gravity, a free‑flight camera, real‑time rendering, and dynamic time scaling.
 
-![SolarSystem Demo](example.png)
+![SolarSystem Demo](Example.png)
 
 ## ✨ Features
 
