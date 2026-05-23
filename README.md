@@ -50,9 +50,6 @@ Make sure you have the following installed:
 git clone https://github.com/IanosAlex-Marian/SolarSystem.git
 cd SolarSystem
 
-# Switch to the "Atestat" branch (or main branch if merged)
-git checkout Atestat
-
 # Create a build directory
 mkdir build && cd build
 
