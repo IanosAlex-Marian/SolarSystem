@@ -9,7 +9,7 @@ include(FetchContent)
 FetchContent_Declare(
     glfw
     GIT_REPOSITORY https://github.com/glfw/glfw.git
-    GIT_TAG latest
+    GIT_TAG 3.4
 )
 FetchContent_MakeAvailable(glfw)
 
@@ -34,6 +34,8 @@ add_executable(SolarSystem
     src/EBO.cpp
     src/camera.cpp
     src/planetClass.cpp
+    src/starClass.cpp
+    src/gravitySystem.cpp
 )
 
 target_include_directories(SolarSystem PUBLIC include)

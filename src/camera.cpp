@@ -11,7 +11,7 @@ Camera::Camera(glm::vec3 position)
     Yaw = -90.0f;
     Pitch = 0.0f;
 
-    Speed = 5.0f;
+    Speed = 20.0f;
     Sensitivity = 0.2f;
 
     updateVectors();
